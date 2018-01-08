@@ -20,7 +20,7 @@ public class LinphoneChatMessageImpl implements LinphoneChatMessage {
 	private native void setListener(long ptr, LinphoneChatMessageListener listener);
 	private native void unref(long ptr);
 
-	protected LinphoneChatMessageImpl(long aNativePtr)  {
+	public LinphoneChatMessageImpl(long aNativePtr)  {
 		nativePtr = aNativePtr;
 	}
 

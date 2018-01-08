@@ -1,5 +1,7 @@
 package org.linphone.core;
 
+import android.app.AlertDialog;
+
 import java.nio.ByteBuffer;
 
 import org.linphone.core.LinphoneCall.State;

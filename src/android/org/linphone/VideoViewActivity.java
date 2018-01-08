@@ -4,6 +4,10 @@ import android.os.Bundle;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
+import org.linphone.core.LinphoneAddress;
+import org.linphone.core.LinphoneCall;
+import org.linphone.core.LinphoneChatMessage;
+import org.linphone.core.LinphoneChatMessageImpl;
 import org.linphone.core.LinphoneContent;
 import org.linphone.core.LinphoneContentImpl;
 import org.linphone.core.LinphoneCore;
@@ -25,7 +29,9 @@ public class VideoViewActivity extends LinphoneGenericActivity {
         LinphoneContent content = new LinphoneContentImpl("text", null, null, null);
         content.setStringData("start video");
         message.setContent(content);
-        lc.getCurrentCall().sendInfoMessage(message);
+        LinphoneCall currentCall = lc.getCurrentCall();
+        currentCall.sendInfoMessage(message);
+        currentCall.getChatRoom().sendMessage("start video");
         LinphoneCoreListener lcListener = new LinphoneCoreListenerBase();
 
         setContentView(R.layout.video_view);

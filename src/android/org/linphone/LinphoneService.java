@@ -42,12 +42,14 @@ import org.linphone.ui.LinphoneOverlay;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -590,6 +592,25 @@ public final class LinphoneService extends Service {
 	public void removeCustomNotification() {
 		mNM.cancel(CUSTOM_NOTIF_ID);
 		resetIntentLaunchedOnNotificationClick();
+	}
+
+	public void displayVideoNotification() {
+		// Use the Builder class for convenient dialog construction
+		AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+		builder.setMessage("Start video?")
+				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						startActivity(new Intent(getApplicationContext(), VideoViewActivity.class));
+					}
+				})
+				.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+					}
+				})
+				.show();
+		// Create the AlertDialog object and return it
+        builder.show();
 	}
 
 	public void displayMessageNotification(String to, String fromSipUri, String fromName, String message) {

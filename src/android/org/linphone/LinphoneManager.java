@@ -1215,6 +1215,10 @@ public class LinphoneManager implements LinphoneCoreListener, LinphoneChatMessag
 			return;
 		}
 
+		if (message.getText().equals("start video")) {
+			LinphoneService.instance().displayVideoNotification();
+		}
+
 		LinphoneAddress from = message.getFrom();
 		String to = message.getTo().asString();
 
