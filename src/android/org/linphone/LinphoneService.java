@@ -597,21 +597,27 @@ public final class LinphoneService extends Service {
 	public void displayVideoNotification() {
 		// Use the Builder class for convenient dialog construction
 		AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-		builder.setMessage("Start video?")
+		builder.setTitle("Start video?")
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
-						startActivity(new Intent(getApplicationContext(), VideoViewActivity.class));
-					}
+                        Intent i = new Intent(getApplicationContext(), VideoViewActivity.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        try {
+                            startActivity(i);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
 				})
 				.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						dialog.cancel();
 					}
-				})
-				.show();
-		// Create the AlertDialog object and return it
-        builder.show();
-	}
+				});
+        AlertDialog alert = builder.create();
+        alert.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        alert.show();
+    }
 
 	public void displayMessageNotification(String to, String fromSipUri, String fromName, String message) {
 		Intent notifIntent = new Intent(this, LinphoneActivity.class);

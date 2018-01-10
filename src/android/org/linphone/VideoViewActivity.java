@@ -32,7 +32,6 @@ public class VideoViewActivity extends LinphoneGenericActivity {
         LinphoneCall currentCall = lc.getCurrentCall();
         currentCall.sendInfoMessage(message);
         currentCall.getChatRoom().sendMessage("start video");
-        LinphoneCoreListener lcListener = new LinphoneCoreListenerBase();
 
         setContentView(R.layout.video_view);
         VideoView videoView = findViewById(R.id.video_view);
