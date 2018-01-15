@@ -28,6 +28,7 @@ import org.linphone.core.LinphoneAddress;
 import org.linphone.core.LinphoneCall;
 import org.linphone.core.LinphoneCall.State;
 import org.linphone.core.LinphoneCallLog.CallStatus;
+import org.linphone.core.LinphoneChatRoom;
 import org.linphone.core.LinphoneCore;
 import org.linphone.core.LinphoneCore.GlobalState;
 import org.linphone.core.LinphoneCore.RegistrationState;
@@ -594,23 +595,31 @@ public final class LinphoneService extends Service {
 		resetIntentLaunchedOnNotificationClick();
 	}
 
-	public void displayVideoNotification() {
+	public void videoInitiationRequest(final LinphoneChatRoom chatRoom) {
 		// Use the Builder class for convenient dialog construction
 		AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-		builder.setTitle("Start video?")
+		builder.setTitle("Watch a video together?")
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
+                        chatRoom.sendMessage("video accept");
                         Intent i = new Intent(getApplicationContext(), VideoViewActivity.class);
+                        i.putExtra("method", "delay");
+                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(i);
+
+                        /*Intent i = new Intent(getApplicationContext(), VideoViewActivity.class);
+                        i.putExtra("method", "video start");
                         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         try {
                             startActivity(i);
                         } catch (Exception e) {
                             e.printStackTrace();
-                        }
+                        }*/
                     }
 				})
 				.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
+                        chatRoom.sendMessage("video decline");
 						dialog.cancel();
 					}
 				});
@@ -619,45 +628,66 @@ public final class LinphoneService extends Service {
         alert.show();
     }
 
+    public void videoAccept() {
+        Intent i = new Intent(getApplicationContext(), VideoViewActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
+    }
+
+    public void videoDecline() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+        builder.setTitle("Video request declined!!")
+                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        alert.show();
+    }
+
 	public void displayMessageNotification(String to, String fromSipUri, String fromName, String message) {
-		Intent notifIntent = new Intent(this, LinphoneActivity.class);
-		notifIntent.putExtra("GoToChat", true);
-		notifIntent.putExtra("ChatContactSipUri", fromSipUri);
+        if (!message.equals("video initiate")) {
+            Intent notifIntent = new Intent(this, LinphoneActivity.class);
+            notifIntent.putExtra("GoToChat", true);
+            notifIntent.putExtra("ChatContactSipUri", fromSipUri);
 
-		PendingIntent notifContentIntent = PendingIntent.getActivity(this, 0, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent notifContentIntent = PendingIntent.getActivity(this, 0, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		if (fromName == null) {
-			fromName = fromSipUri;
-		}
+            if (fromName == null) {
+                fromName = fromSipUri;
+            }
 
-		if (mMsgNotif == null) {
-			mMsgNotifCount = 1;
-		} else {
-			mMsgNotifCount++;
-		}
+            if (mMsgNotif == null) {
+                mMsgNotifCount = 1;
+            } else {
+                mMsgNotifCount++;
+            }
 
-		Uri pictureUri = null;
-		try {
-			LinphoneContact contact = ContactsManager.getInstance().findContactFromAddress(LinphoneCoreFactory.instance().createLinphoneAddress(fromSipUri));
-			if (contact != null)
-				pictureUri = contact.getThumbnailUri();
-		} catch (LinphoneCoreException e1) {
-			Log.e("Cannot parse from address ", e1);
-		}
+            Uri pictureUri = null;
+            try {
+                LinphoneContact contact = ContactsManager.getInstance().findContactFromAddress(LinphoneCoreFactory.instance().createLinphoneAddress(fromSipUri));
+                if (contact != null)
+                    pictureUri = contact.getThumbnailUri();
+            } catch (LinphoneCoreException e1) {
+                Log.e("Cannot parse from address ", e1);
+            }
 
-		Bitmap bm = null;
-		if (pictureUri != null) {
-			try {
-				bm = MediaStore.Images.Media.getBitmap(getContentResolver(), pictureUri);
-			} catch (Exception e) {
-				bm = BitmapFactory.decodeResource(getResources(), R.drawable.topbar_avatar);
-			}
-		} else {
-			bm = BitmapFactory.decodeResource(getResources(), R.drawable.topbar_avatar);
-		}
-		mMsgNotif = Compatibility.createMessageNotification(getApplicationContext(), mMsgNotifCount, to, fromName, message, bm, notifContentIntent);
+            Bitmap bm = null;
+            if (pictureUri != null) {
+                try {
+                    bm = MediaStore.Images.Media.getBitmap(getContentResolver(), pictureUri);
+                } catch (Exception e) {
+                    bm = BitmapFactory.decodeResource(getResources(), R.drawable.topbar_avatar);
+                }
+            } else {
+                bm = BitmapFactory.decodeResource(getResources(), R.drawable.topbar_avatar);
+            }
+            mMsgNotif = Compatibility.createMessageNotification(getApplicationContext(), mMsgNotifCount, to, fromName, message, bm, notifContentIntent);
 
-		notifyWrapper(MESSAGE_NOTIF_ID, mMsgNotif);
+            notifyWrapper(MESSAGE_NOTIF_ID, mMsgNotif);
+        }
 	}
 
 	public void displayInappNotification(String message) {

@@ -714,17 +714,15 @@ public class CallActivity extends LinphoneGenericActivity implements OnClickList
 			pauseOrResumeConference();
 		}
 		else if (id == R.id.mask)  {
-            try {
+			LinphoneCore lc = LinphoneManager.getLc();
+            lc.getCurrentCall().getChatRoom().sendMessage("video initiate");
+            /*try {
                 startActivity(new Intent(this, VideoViewActivity.class));
             } catch (Exception e) {
                 e.printStackTrace();
-            }
+            }*/
         }
 	}
-
-	public void startVideoView() {
-        startActivity(new Intent(this, VideoViewActivity.class));
-    }
 
 	private void enabledVideoButton(boolean enabled){
 		if(enabled) {
