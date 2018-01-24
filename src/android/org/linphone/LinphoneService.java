@@ -598,6 +598,11 @@ public final class LinphoneService extends Service {
 	public void videoInitiationRequest(final LinphoneChatRoom chatRoom) {
 		// Use the Builder class for convenient dialog construction
 		AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			builder = new AlertDialog.Builder(getApplicationContext(), android.R.style.Theme_Material_Dialog_Alert);
+		} else {
+			builder = new AlertDialog.Builder(getApplicationContext());
+		}
 		builder.setTitle("Watch a video together?")
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
@@ -623,14 +628,19 @@ public final class LinphoneService extends Service {
 						dialog.cancel();
 					}
 				});
-        AlertDialog alert = builder.create();
-        alert.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        alert.show();
-    }
+		try {
+			AlertDialog alert = builder.create();
+			alert.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+			alert.show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
     public void videoAccept() {
         Intent i = new Intent(getApplicationContext(), VideoViewActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtra("method", "");
         startActivity(i);
     }
 
@@ -645,6 +655,22 @@ public final class LinphoneService extends Service {
         AlertDialog alert = builder.create();
         alert.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         alert.show();
+    }
+
+    public void videoPause() {
+        Context context = getApplicationContext();
+        if (context.equals(VideoViewActivity.class)) {
+            VideoViewActivity activity = (VideoViewActivity)context;
+            activity.getVideoView().pause();
+        }
+    }
+
+    public void videoPlay() {
+        Context context = getApplicationContext();
+        if (context.equals(VideoViewActivity.class)) {
+            VideoViewActivity activity = (VideoViewActivity)context;
+            activity.getVideoView().resume();
+        }
     }
 
 	public void displayMessageNotification(String to, String fromSipUri, String fromName, String message) {

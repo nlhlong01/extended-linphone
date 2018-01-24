@@ -1230,6 +1230,14 @@ public class LinphoneManager implements LinphoneCoreListener, LinphoneChatMessag
             ls.videoDecline();
         }
 
+        else if (messageText.equals("video pause")) {
+            ls.videoPause();
+        }
+
+        else if (messageText.equals("video play")) {
+            ls.videoPlay();
+        }
+
 		LinphoneAddress from = message.getFrom();
 		String to = message.getTo().asString();
 
