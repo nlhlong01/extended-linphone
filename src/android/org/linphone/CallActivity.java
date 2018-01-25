@@ -21,9 +21,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -37,6 +39,7 @@ import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Editable;
 import android.text.Html;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -49,6 +52,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -714,8 +718,32 @@ public class CallActivity extends LinphoneGenericActivity implements OnClickList
 			pauseOrResumeConference();
 		}
 		else if (id == R.id.mask)  {
-			LinphoneCore lc = LinphoneManager.getLc();
-            lc.getCurrentCall().getChatRoom().sendMessage("video initiate");
+			final EditText input = new EditText(this);
+            input.setText("http://192.168.1.101:8081/vod/BigBuckBunny_320x180.mp4");
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            );
+            input.setLayoutParams(lp);
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setView(input)
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    })
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String url = input.getText().toString();
+                            LinphoneCore lc = LinphoneManager.getLc();
+                            lc.getCurrentCall().getChatRoom().sendMessage("video initiate, URL:" + url);
+                        }
+                    });
+            dialog.show();
+
+
             /*try {
                 startActivity(new Intent(this, VideoViewActivity.class));
             } catch (Exception e) {

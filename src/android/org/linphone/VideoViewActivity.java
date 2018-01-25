@@ -1,13 +1,17 @@
 package org.linphone;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
+import org.linphone.core.LinphoneBuffer;
 import org.linphone.core.LinphoneCall;
+import org.linphone.core.LinphoneChatMessage;
 import org.linphone.core.LinphoneChatRoom;
+import org.linphone.core.LinphoneContent;
 import org.linphone.core.LinphoneCore;
 
 /**
@@ -15,7 +19,7 @@ import org.linphone.core.LinphoneCore;
  */
 
 public class VideoViewActivity extends LinphoneGenericActivity {
-    private CustomVideoView customvideoView;
+    private CustomVideoView customVideoView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,56 +31,37 @@ public class VideoViewActivity extends LinphoneGenericActivity {
         }
 
         String method = getIntent().getStringExtra("method");
-        if (method.equals("delay")) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        String url = getIntent().getStringExtra("url");
 
         try {
             VideoView videoView = findViewById(R.id.video_view);
-            customvideoView = (CustomVideoView) videoView;
-            customvideoView.setVideoPath("http://192.168.1.102:8081/vod/BigBuckBunny_320x180.mp4");
+            videoView.setVideoPath(url);
 
             MediaController mediaController = new MediaController(this);
             mediaController.setAnchorView(videoView);
-            customvideoView.setMediaController(mediaController);
-            customvideoView.start();
+            videoView.setMediaController(mediaController);
+            /*if (method.equals("delay")) {
+                Thread.sleep(1500);
+            }*/
+            videoView.start();
+
+            /*customVideoView = findViewById(R.id.video_view);
+            customVideoView.setVideoPath(url);
+
+            MediaController mediaController = new MediaController(this);
+            mediaController.setAnchorView(customVideoView);
+            customVideoView.setMediaController(mediaController);
+            *//*if (method.equals("delay")) {
+                Thread.sleep(1500);
+            }*//*
+            customVideoView.start();*/
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    protected class CustomVideoView extends VideoView {
-
-        public CustomVideoView(Context context) {
-            super(context);
-        }
-
-        public CustomVideoView(Context context, AttributeSet attrs) {
-            super(context, attrs);
-        }
-
-        public CustomVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
-            super(context, attrs, defStyleAttr);
-        }
-
-        @Override
-        public void pause() {
-            super.pause();
-            LinphoneManager.getLc().getCurrentCall().getChatRoom().sendMessage("video pause");
-        }
-
-        @Override
-        public void start() {
-            super.start();
-            LinphoneManager.getLc().getCurrentCall().getChatRoom().sendMessage("video play");
-        }
+    public CustomVideoView getCustomVideoView() {
+        return customVideoView;
     }
 
-    public CustomVideoView getVideoView() {
-        return customvideoView;
-    }
 }

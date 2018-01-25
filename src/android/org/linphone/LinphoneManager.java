@@ -1218,12 +1218,14 @@ public class LinphoneManager implements LinphoneCoreListener, LinphoneChatMessag
 		String messageText = message.getText();
         LinphoneService ls = LinphoneService.instance();
 
-		if (messageText.equals("video initiate")) {
-			ls.videoInitiationRequest(cr);
+		if (messageText.contains("video initiate")) {
+            String url = messageText.substring(messageText.indexOf(":") + 1);
+			ls.videoInitiationRequest(cr, url);
 		}
 
-        else if (messageText.equals("video accept")) {
-            ls.videoAccept();
+        else if (messageText.contains("video accept")) {
+            String url = messageText.substring(messageText.indexOf(":") + 1);
+            ls.videoAccept(url);
         }
 
         else if (messageText.equals("video decline")) {

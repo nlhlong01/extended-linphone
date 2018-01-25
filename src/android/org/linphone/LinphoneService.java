@@ -595,7 +595,7 @@ public final class LinphoneService extends Service {
 		resetIntentLaunchedOnNotificationClick();
 	}
 
-	public void videoInitiationRequest(final LinphoneChatRoom chatRoom) {
+	public void videoInitiationRequest(final LinphoneChatRoom chatRoom, final String url) {
 		// Use the Builder class for convenient dialog construction
 		AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -606,9 +606,10 @@ public final class LinphoneService extends Service {
 		builder.setTitle("Watch a video together?")
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
-                        chatRoom.sendMessage("video accept");
+                        chatRoom.sendMessage("video accept, url:" + url);
                         Intent i = new Intent(getApplicationContext(), VideoViewActivity.class);
                         i.putExtra("method", "delay");
+                        i.putExtra("url", url);
                         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(i);
 
@@ -637,10 +638,11 @@ public final class LinphoneService extends Service {
 		}
 	}
 
-    public void videoAccept() {
+    public void videoAccept(String url) {
         Intent i = new Intent(getApplicationContext(), VideoViewActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.putExtra("method", "");
+        i.putExtra("url", url);
         startActivity(i);
     }
 
@@ -661,7 +663,7 @@ public final class LinphoneService extends Service {
         Context context = getApplicationContext();
         if (context.equals(VideoViewActivity.class)) {
             VideoViewActivity activity = (VideoViewActivity)context;
-            activity.getVideoView().pause();
+            activity.getCustomVideoView().pause();
         }
     }
 
@@ -669,12 +671,12 @@ public final class LinphoneService extends Service {
         Context context = getApplicationContext();
         if (context.equals(VideoViewActivity.class)) {
             VideoViewActivity activity = (VideoViewActivity)context;
-            activity.getVideoView().resume();
+            activity.getCustomVideoView().resume();
         }
     }
 
 	public void displayMessageNotification(String to, String fromSipUri, String fromName, String message) {
-        if (!message.equals("video initiate")) {
+        if (!message.contains("video")) {
             Intent notifIntent = new Intent(this, LinphoneActivity.class);
             notifIntent.putExtra("GoToChat", true);
             notifIntent.putExtra("ChatContactSipUri", fromSipUri);

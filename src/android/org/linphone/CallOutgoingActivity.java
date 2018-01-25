@@ -101,7 +101,7 @@ public class CallOutgoingActivity extends LinphoneGenericActivity implements OnC
 						return;
 					}
 					LinphoneActivity.instance().startIncallActivity(mCall);
-					finish();
+					finish();+
 					return;
 				} else if (state == State.Error) {
 					// Convert LinphoneCore message for internalization
